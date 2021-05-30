@@ -1,3 +1,7 @@
 textarea {
     min-height: 400px;
 }
+
+input[type=submit] {
+    margin-top: 10px;
+}
