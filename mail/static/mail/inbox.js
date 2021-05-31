@@ -20,6 +20,7 @@ function compose_email() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#email-details').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -32,6 +33,7 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#email-details').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
@@ -70,7 +72,6 @@ function send_email() {
       }
     })
     .catch(error => {
-      console.log(error)
       status.innerHTML = error;
       status.style.color = "red";
     });
@@ -87,9 +88,6 @@ function get_emails(mailbox) {
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(emails => {
-      // Print emails
-      console.log(emails);
-
       // List all emails
       const emails_view = document.querySelector('#emails-view');
       emails.forEach(email => {
@@ -108,11 +106,14 @@ function get_emails(mailbox) {
         subject_element.className = "col-7"
         timestamp_element.className = "col-3"
 
+        sender_element.onclick = () => get_email(email.id);
+        subject_element.onclick = () => get_email(email.id);
+        timestamp_element.onclick = () => get_email(email.id);
+
         sender_element.innerHTML = email.sender;
         subject_element.innerHTML = email.subject;
-        console.log(email.timestamp);
+
         date = new Date(email.timestamp);
-        console.log(date);
         timestamp_element.innerHTML = date.toLocaleString('en-US', {
           month: 'long',
           day: 'numeric',
@@ -121,12 +122,135 @@ function get_emails(mailbox) {
           minute: '2-digit',
         });
 
-
         row_element.appendChild(sender_element);
         row_element.appendChild(subject_element);
         row_element.appendChild(timestamp_element);
 
         emails_view.appendChild(row_element);
       });
+    });
+}
+
+function get_email(email_id) {
+
+  // Get an specific email using id
+  fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+      // Show the mail details and hide other views
+      document.querySelector('#emails-view').style.display = 'none';
+      document.querySelector('#email-details').style.display = 'block';
+      document.querySelector('#compose-view').style.display = 'none';
+
+      // get emails_view and clear
+      const email_details = document.querySelector('#email-details');
+      email_details.innerHTML = '';
+
+      // create from_line
+      const from_line_element = document.createElement('div');
+      const from_title_element = document.createElement('span');
+      const from_data_element = document.createElement('span');
+
+      // create to_line
+      const to_line_element = document.createElement('div');
+      const to_title_element = document.createElement('span');
+      const to_data_element = document.createElement('span');
+
+      // create subject_line
+      const subject_line_element = document.createElement('div');
+      const subject_title_element = document.createElement('span');
+      const subject_data_element = document.createElement('span');
+
+      // create timestamp_line
+      const timestamp_line_element = document.createElement('div');
+      const timestamp_title_element = document.createElement('span');
+      const timestamp_data_element = document.createElement('span');
+
+      // create body_line
+      const body_line_element = document.createElement('div');
+      const body_data_element = document.createElement('textarea');
+
+      // configuring from elements
+      from_title_element.className = 'bold';
+
+      // configuring to elements
+      to_title_element.className = 'bold';
+
+      // configuring subject elements
+      subject_title_element.className = 'bold';
+
+      // configuring timestamp elements
+      timestamp_title_element.className = 'bold';
+
+      // configuring body elements
+      body_data_element.id = 'email-body';
+
+      // from data input
+      from_title_element.innerHTML = "From: ";
+      from_data_element.innerHTML = email.sender;
+
+      // to data input
+      to_title_element.innerHTML = "To: ";
+      to_data_element.innerHTML = email.recipients[0];
+
+      // subject data input
+      subject_title_element.innerHTML = "Subject: ";
+      subject_data_element.innerHTML = email.subject;
+
+      // timestamp data input
+      timestamp_title_element.innerHTML = "Timestamp: ";
+      timestamp_data_element.innerHTML = email.timestamp;
+
+      // body data input
+      body_data_element.innerHTML = email.body;
+
+      // from append elements
+      from_line_element.appendChild(from_title_element);
+      from_line_element.appendChild(from_data_element);
+
+      // to append elements
+      to_line_element.appendChild(to_title_element);
+      to_line_element.appendChild(to_data_element);
+
+      // subject append elements
+      subject_line_element.appendChild(subject_title_element);
+      subject_line_element.appendChild(subject_data_element);
+
+      // timestamp append elements
+      timestamp_line_element.appendChild(timestamp_title_element);
+      timestamp_line_element.appendChild(timestamp_data_element);
+
+      // body append elements
+      body_line_element.appendChild(body_data_element);
+
+      // add reply button (example following)
+      // <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
+      const reply_button_element = document.createElement('button');
+      reply_button_element.className = 'btn btn-sm btn-outline-primary';
+      reply_button_element.innerHTML = 'Reply';
+      reply_button_element.id = 'reply-button';
+
+      // add hr to separate header and body
+      const hr_element = document.createElement('hr');
+      hr_element.id = "email-header-bottom-hr";
+
+      // add all elements to email_view
+      email_details.appendChild(from_line_element);
+      email_details.appendChild(to_line_element);
+      email_details.appendChild(subject_line_element);
+      email_details.appendChild(timestamp_line_element);
+      email_details.appendChild(reply_button_element);
+      email_details.appendChild(hr_element);
+      email_details.appendChild(body_line_element);
+
+      return email.id;
+    })
+    .then(email_id => {
+      fetch(`/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          read: true
+        })
+      })
     });
 }

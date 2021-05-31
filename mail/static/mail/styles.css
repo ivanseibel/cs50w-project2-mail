@@ -26,3 +26,23 @@ div.mail-row:hover {
 .sender {
     font-weight: bold;
 }
+
+.bold {
+    font-weight: bold;
+}
+
+#reply-button {
+    margin-top: 10px;
+}
+
+#email-header-bottom-hr {
+    margin-top: 20px;
+}
+
+#email-body {
+    width: 100%;
+    border: "1px solid black";
+    border-radius: 4px;
+    border: 1px solid gray;
+    padding: 3px;
+}
