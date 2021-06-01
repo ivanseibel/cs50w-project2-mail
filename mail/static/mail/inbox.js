@@ -223,12 +223,18 @@ function get_email(email_id) {
       // body append elements
       body_line_element.appendChild(body_data_element);
 
-      // add reply button (example following)
-      // <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
+      // add reply button
       const reply_button_element = document.createElement('button');
       reply_button_element.className = 'btn btn-sm btn-outline-primary';
       reply_button_element.innerHTML = 'Reply';
       reply_button_element.id = 'reply-button';
+
+      // add archive button
+      const archive_button_element = document.createElement('button');
+      archive_button_element.className = 'btn btn-sm btn-outline-primary';
+      archive_button_element.innerHTML = email.archived ? 'Unarchive' : 'Archive';
+      archive_button_element.id = 'archive-button';
+      archive_button_element.onclick = () => archive_email(email.id, email.archived);
 
       // add hr to separate header and body
       const hr_element = document.createElement('hr');
@@ -240,6 +246,7 @@ function get_email(email_id) {
       email_details.appendChild(subject_line_element);
       email_details.appendChild(timestamp_line_element);
       email_details.appendChild(reply_button_element);
+      email_details.appendChild(archive_button_element);
       email_details.appendChild(hr_element);
       email_details.appendChild(body_line_element);
 
@@ -251,6 +258,18 @@ function get_email(email_id) {
         body: JSON.stringify({
           read: true
         })
-      })
+      });
     });
+}
+
+function archive_email(email_id, is_archived) {
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      archived: !is_archived
+    })
+  })
+    .then(() => {
+      load_mailbox('inbox');
+    })
 }

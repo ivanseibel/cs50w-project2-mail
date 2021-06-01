@@ -35,6 +35,11 @@ div.mail-row:hover {
     margin-top: 10px;
 }
 
+#archive-button {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
 #email-header-bottom-hr {
     margin-top: 20px;
 }
