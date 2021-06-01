@@ -228,6 +228,7 @@ function get_email(email_id) {
       reply_button_element.className = 'btn btn-sm btn-outline-primary';
       reply_button_element.innerHTML = 'Reply';
       reply_button_element.id = 'reply-button';
+      reply_button_element.onclick = () => reply_email(email);
 
       // add archive button
       const archive_button_element = document.createElement('button');
@@ -272,4 +273,22 @@ function archive_email(email_id, is_archived) {
     .then(() => {
       load_mailbox('inbox');
     })
+}
+
+function reply_email(email) {
+  compose_email();
+
+  // set recipients
+  document.querySelector('#compose-recipients').value = email.sender;
+
+  // set subject
+  const subject = email.subject.toUpperCase().includes("RE: ")
+    ? email.subject
+    : `Re: ${email.subject}`;
+  document.querySelector('#compose-subject').value = subject;
+
+  // set body
+  const body = `"On ${email.timestamp} ${email.sender} wrote:"\n${email.body}`;
+  document.querySelector('#compose-body').value = body;
+  console.log(document.querySelector('#compose-body'))
 }
